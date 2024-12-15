@@ -3,9 +3,14 @@ import 'package:pks9/pages/home_page.dart';
 import 'package:pks9/pages/favorites_page.dart';
 import 'package:pks9/pages/profile_page.dart';
 import 'package:pks9/pages/cart_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'model/product.dart';
 
-void main() {
+void main() async {
+  await Supabase.initialize(
+    url: "https://ahhqxspwebmmfaltgovu.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoaHF4c3B3ZWJtbWZhbHRnb3Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzMDM0MDcsImV4cCI6MjA0OTg3OTQwN30.d76_AKDHQz9CGSHzdev5z6VBX3Ec-dXil7HUUWNycRA",
+  );
   runApp(const MyApp());
 }
 

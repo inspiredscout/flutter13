@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../auth/auth_service.dart';
+import 'login_page.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -21,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final authService = AuthService();
+
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -36,6 +41,17 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _isEditing = true;
     });
+  }
+
+  void logout() async {
+    await authService.signOut();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+      );
+    }
   }
 
   @override
@@ -55,12 +71,16 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             _isEditing
                 ? IconButton(
-              icon: const Icon(Icons.save),
+              icon: const Icon(Icons.save, color: Colors.white,),
               onPressed: _saveProfile,
             )
                 : IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(Icons.edit, color: Colors.white),
               onPressed: _editProfile,
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: logout,
             ),
           ],
         ),
