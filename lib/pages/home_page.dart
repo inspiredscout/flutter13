@@ -25,11 +25,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ApiService apiService = ApiService();
   List<dynamic> sets = [];
+  List<dynamic> filteredSets = [];
+  String searchQuery = '';
 
   Future<void> loadSets() async {
     final fetchedSets = await apiService.getProducts();
     setState(() {
       sets = fetchedSets;
+      filteredSets = fetchedSets;
     });
   }
 
@@ -44,17 +47,19 @@ class _HomePageState extends State<HomePage> {
       final newSet = await apiService.createProducts(set);
       setState(() {
         sets.add(newSet);
+        filteredSets = sets;
       });
     } catch (e) {
       print("Ошибка добавления сета: $e");
     }
   }
 
-  Future<void> _removeCar(int id) async {
+  Future<void> _removeSet(int id) async {
     try {
       await apiService.deleteProduct(id);
       setState(() {
         sets.removeWhere((set) => set.id == id);
+        filteredSets = sets;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Сет с ID $id удалена")),
@@ -64,7 +69,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _editCarDialog(BuildContext context, Collector set) async {
+  Future<void> _editSetDialog(BuildContext context, Collector set) async {
     String title = set.title;
     String description = set.description;
     String imageUrl = set.imageUrl;
@@ -147,6 +152,7 @@ class _HomePageState extends State<HomePage> {
                       int index = sets.indexWhere((c) => c.id == set.id);
                       if (index != -1) {
                         sets[index] = result;
+                        filteredSets = sets;
                       }
                     });
                     Navigator.of(context).pop();
@@ -170,6 +176,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _filterSets(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase();
+      filteredSets = sets.where((set) {
+        final titleLower = set.title.toLowerCase();
+        final descriptionLower = set.description.toLowerCase();
+        return titleLower.contains(searchQuery) ||
+            descriptionLower.contains(searchQuery);
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -182,10 +200,26 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           backgroundColor: Colors.deepPurpleAccent,
+          actions: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextField(
+                  onChanged: _filterSets,
+                  decoration: const InputDecoration(
+                    hintText: 'Поиск...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: sets.isNotEmpty
+          child: filteredSets.isNotEmpty
               ? GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -193,12 +227,12 @@ class _HomePageState extends State<HomePage> {
                     crossAxisSpacing: 8.0,
                     mainAxisSpacing: 8.0,
                   ),
-                  itemCount: sets.length,
+                  itemCount: filteredSets.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final set = sets[index];
+                    final set = filteredSets[index];
                     final isFavorite = widget.favoriteSets.contains(set);
                     return GestureDetector(
-                      onLongPress: () => _editCarDialog(context, set),
+                      onLongPress: () => _editSetDialog(context, set),
                       child: Dismissible(
                         key: Key(set.id.toString()),
                         background: Container(
@@ -209,14 +243,14 @@ class _HomePageState extends State<HomePage> {
                         ),
                         direction: DismissDirection.endToStart,
                         onDismissed: (direction) async {
-                          await _removeCar(set.id);
+                          await _removeSet(set.id);
                         },
                         child: ItemNote(
                           collector: set,
                           isFavorite: isFavorite,
                           onFavoriteToggle: () => widget.onFavoriteToggle(set),
                           onAddToCart: () => widget.onAddToCart(set),
-                          onEdit: () => _editCarDialog(context, set),
+                          onEdit: () => _editSetDialog(context, set),
                         ),
                       ),
                     );
@@ -226,12 +260,12 @@ class _HomePageState extends State<HomePage> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final newCar = await Navigator.push<Collector>(
+            final newSet = await Navigator.push<Collector>(
               context,
               MaterialPageRoute(builder: (context) => const AddSetPage()),
             );
-            if (newCar != null) {
-              await _addNewSet(newCar);
+            if (newSet != null) {
+              await _addNewSet(newSet);
             }
           },
           child: const Icon(Icons.add,
