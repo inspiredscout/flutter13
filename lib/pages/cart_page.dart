@@ -157,10 +157,10 @@ class CartPage extends StatelessWidget {
                         const SnackBar(content: Text('Покупка оформлена!')),
                       );
                     },
-                    child: const Text('Купить'),
+                    child: const Text('Купить', style: TextStyle(color: Colors.white),),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
-                      backgroundColor: Colors.blueGrey,
+                      backgroundColor: Colors.deepPurpleAccent,
                     ),
                   ),
                 ],

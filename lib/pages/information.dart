@@ -10,11 +10,12 @@ class CatalogPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(collector.title, style: const TextStyle(fontSize: 22)),
-        backgroundColor: Colors.blueGrey,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(collector.title, style: const TextStyle(fontSize: 22, color: Colors.white)),
+        backgroundColor: Colors.deepPurpleAccent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete),
+            icon: const Icon(Icons.delete, color: Colors.white,),
             onPressed: () {
               Navigator.pop(context, collector.id);
             },
@@ -36,8 +37,8 @@ class CatalogPage extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       height: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                      color: Colors.white,
+                      child: const Icon(Icons.broken_image, size: 100, color: Colors.white),
                     );
                   },
                 ),
@@ -63,7 +64,7 @@ class CatalogPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey,
+                  color: Colors.deepPurpleAccent,
                 ),
               ),
             ),
@@ -75,22 +76,11 @@ class CatalogPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
-                  color: Colors.blueGrey,
+                  color: Colors.deepPurpleAccent,
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Характеристики:',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey,
-                ),
-              ),
-            ),
             const SizedBox(height: 10),
           ],
         ),
