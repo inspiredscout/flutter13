@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-
-import '../auth/auth_service.dart';
-import 'login_page.dart';
+import 'package:pks9/pages/login_page.dart';
+import 'package:pks9/auth/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pks9/pages/chat_page.dart'; // Импортируем страницу чата
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -66,12 +67,19 @@ class _ProfilePageState extends State<ProfilePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Профиль', style: TextStyle(color: Colors.white, fontFamily: 'Open-Sans', fontSize: 24,),),
+          title: const Text(
+            'Профиль',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Open-Sans',
+              fontSize: 24,
+            ),
+          ),
           backgroundColor: Colors.deepPurpleAccent,
           actions: [
             _isEditing
                 ? IconButton(
-              icon: const Icon(Icons.save, color: Colors.white,),
+              icon: const Icon(Icons.save, color: Colors.white),
               onPressed: _saveProfile,
             )
                 : IconButton(
@@ -94,6 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   GestureDetector(
                     onTap: _isEditing
                         ? () {
+                      // Здесь можно реализовать изменение аватара
                     }
                         : null,
                     child: CircleAvatar(
@@ -117,7 +126,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     controller: _nameController,
                     decoration: const InputDecoration(
                       labelText: 'Имя и фамилия',
-                      prefixIcon: Icon(Icons.person, color: Colors.deepPurpleAccent),
+                      prefixIcon:
+                      Icon(Icons.person, color: Colors.deepPurpleAccent),
                       border: OutlineInputBorder(),
                     ),
                     enabled: _isEditing,
@@ -133,7 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Электронная почта',
-                      prefixIcon: Icon(Icons.email, color: Colors.deepPurpleAccent),
+                      prefixIcon:
+                      Icon(Icons.email, color: Colors.deepPurpleAccent),
                       border: OutlineInputBorder(),
                     ),
                     enabled: _isEditing,
@@ -153,7 +164,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     controller: _phoneController,
                     decoration: const InputDecoration(
                       labelText: 'Телефон',
-                      prefixIcon: Icon(Icons.phone, color: Colors.deepPurpleAccent),
+                      prefixIcon:
+                      Icon(Icons.phone, color: Colors.deepPurpleAccent),
                       border: OutlineInputBorder(),
                     ),
                     enabled: _isEditing,
@@ -173,7 +185,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     controller: _avatarUrlController,
                     decoration: const InputDecoration(
                       labelText: 'URL аватара',
-                      prefixIcon: Icon(Icons.image, color: Colors.deepPurpleAccent),
+                      prefixIcon:
+                      Icon(Icons.image, color: Colors.deepPurpleAccent),
                       border: OutlineInputBorder(),
                     ),
                     enabled: _isEditing,
@@ -198,8 +211,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           builder: (context) => AlertDialog(
                             content: Image.network(
                               _avatarUrlController.text,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Text('Не удалось загрузить изображение');
+                              errorBuilder:
+                                  (context, error, stackTrace) {
+                                return const Text(
+                                    'Не удалось загрузить изображение');
                               },
                             ),
                           ),
@@ -207,8 +222,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Введите корректный URL для аватара')
-                          ),
+                              content: Text(
+                                  'Введите корректный URL для аватара')),
                         );
                       }
                     },
@@ -219,6 +234,23 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   )
                       : const SizedBox.shrink(),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Переход на страницу чата
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChatPage()),
+                      );
+                    },
+                    icon: const Icon(Icons.chat),
+                    label: const Text('Чат с продавцом'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurpleAccent,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -231,7 +263,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isValidUrl(String url) {
     Uri? uri = Uri.tryParse(url);
     if (uri == null) return false;
-    if (!uri.hasScheme || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+    if (!uri.hasScheme ||
+        !(uri.scheme == 'http' || uri.scheme == 'https')) {
       return false;
     }
     return true;

@@ -3,6 +3,7 @@ import 'package:pks9/components/item.dart';
 import 'package:pks9/model/product.dart';
 import 'package:pks9/pages/add_set_page.dart';
 import 'package:pks9/api_service.dart';
+import 'package:pks9/pages/chat_page.dart'; // Импортируем страницу чата
 
 class HomePage extends StatefulWidget {
   final Function(Collector) onFavoriteToggle;
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         filteredSets = sets;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Сет с ID $id удалена")),
+        SnackBar(content: Text("Сет с ID $id удален")),
       );
     } catch (e) {
       print("Ошибка удаления сета: $e");
@@ -100,7 +101,8 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 TextField(
-                  decoration: const InputDecoration(labelText: 'URL картинки'),
+                  decoration:
+                  const InputDecoration(labelText: 'URL картинки'),
                   controller: TextEditingController(text: imageUrl),
                   onChanged: (value) {
                     imageUrl = value;
@@ -137,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                     description.isNotEmpty &&
                     cost.isNotEmpty &&
                     article.isNotEmpty) {
-                  Collector updatedCar = Collector(
+                  Collector updatedSet = Collector(
                     set.id,
                     title,
                     description,
@@ -147,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                   );
                   try {
                     Collector result =
-                        await apiService.updateProduct(set.id, updatedCar);
+                    await apiService.updateProduct(set.id, updatedSet);
                     setState(() {
                       int index = sets.indexWhere((c) => c.id == set.id);
                       if (index != -1) {
@@ -157,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                     });
                     Navigator.of(context).pop();
                   } catch (error) {
-                    print('Ошибка при обновлении машины: $error');
+                    print('Ошибка при обновлении сета: $error');
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Ошибка: $error')),
                     );
@@ -196,7 +198,10 @@ class _HomePageState extends State<HomePage> {
           title: const Center(
             child: Text(
               'Collectors Set',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
           ),
           backgroundColor: Colors.deepPurpleAccent,
@@ -215,47 +220,60 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            IconButton(
+              icon: const Icon(Icons.chat, color: Colors.white),
+              onPressed: () {
+                // Переход на страницу чата
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChatPage()),
+                );
+              },
+            ),
           ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: filteredSets.isNotEmpty
               ? GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
+            gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.75,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
+            ),
+            itemCount: filteredSets.length,
+            itemBuilder: (BuildContext context, int index) {
+              final set = filteredSets[index];
+              final isFavorite = widget.favoriteSets.contains(set);
+              return GestureDetector(
+                onLongPress: () => _editSetDialog(context, set),
+                child: Dismissible(
+                  key: Key(set.id.toString()),
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child:
+                    const Icon(Icons.delete, color: Colors.white),
                   ),
-                  itemCount: filteredSets.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final set = filteredSets[index];
-                    final isFavorite = widget.favoriteSets.contains(set);
-                    return GestureDetector(
-                      onLongPress: () => _editSetDialog(context, set),
-                      child: Dismissible(
-                        key: Key(set.id.toString()),
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (direction) async {
-                          await _removeSet(set.id);
-                        },
-                        child: ItemNote(
-                          collector: set,
-                          isFavorite: isFavorite,
-                          onFavoriteToggle: () => widget.onFavoriteToggle(set),
-                          onAddToCart: () => widget.onAddToCart(set),
-                          onEdit: () => _editSetDialog(context, set),
-                        ),
-                      ),
-                    );
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) async {
+                    await _removeSet(set.id);
                   },
-                )
+                  child: ItemNote(
+                    collector: set,
+                    isFavorite: isFavorite,
+                    onFavoriteToggle: () =>
+                        widget.onFavoriteToggle(set),
+                    onAddToCart: () => widget.onAddToCart(set),
+                    onEdit: () => _editSetDialog(context, set),
+                  ),
+                ),
+              );
+            },
+          )
               : const Center(child: Text('Нет доступных сетов')),
         ),
         floatingActionButton: FloatingActionButton(
@@ -268,8 +286,10 @@ class _HomePageState extends State<HomePage> {
               await _addNewSet(newSet);
             }
           },
-          child: const Icon(Icons.add,
-          color: Colors.white,),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
           backgroundColor: Colors.deepPurpleAccent,
         ),
       ),

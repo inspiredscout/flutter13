@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pks9/pages/home_page.dart';
 import 'package:pks9/pages/favorites_page.dart';
@@ -11,7 +13,15 @@ void main() async {
     url: "https://ahhqxspwebmmfaltgovu.supabase.co",
     anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoaHF4c3B3ZWJtbWZhbHRnb3Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzMDM0MDcsImV4cCI6MjA0OTg3OTQwN30.d76_AKDHQz9CGSHzdev5z6VBX3Ec-dXil7HUUWNycRA",
   );
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  try {
+    await FirebaseAuth.instance.signInAnonymously();
+    // Proceed to run the app
+    runApp(const MyApp());
+  } catch (e) {
+    print("Error during anonymous sign-in: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {
