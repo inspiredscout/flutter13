@@ -80,8 +80,8 @@ class ProfilePage extends StatelessWidget {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.shopping_bag),
-                      label: const Text('Мои заказы'),
+                      icon: const Icon(Icons.shopping_bag, color: Colors.white,),
+                      label: const Text('Мои заказы', style: TextStyle(color: Colors.white),),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: Colors.deepPurpleAccent,

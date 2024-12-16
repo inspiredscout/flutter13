@@ -70,6 +70,16 @@ class ApiService {
     }
   }
 
+  Future<List<Collector>> getProductsByIds(List<int> productIds) async {
+    try {
+      // Используем Future.wait для параллельного получения всех продуктов
+      List<Future<Collector>> fetches = productIds.map((id) => getProductById(id)).toList();
+      return await Future.wait(fetches);
+    } catch (e) {
+      throw Exception('Ошибка при получении продуктов: $e');
+    }
+  }
+
   // Обновление продукта
   Future<Collector> updateProduct(int id, Collector collector) async {
     try {
