@@ -3,6 +3,7 @@ import 'package:pks9/pages/profile_page.dart';
 import 'package:pks9/pages/register_page.dart';
 
 import '../auth/auth_service.dart';
+import '../main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) =>  const ProfilePage()),
+          MaterialPageRoute(builder: (context) => const MainPage()), // Перенаправление на MainPage
               (route) => false,
         );
       }
