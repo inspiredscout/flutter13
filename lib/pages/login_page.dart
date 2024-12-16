@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pks9/pages/profile_page.dart';
 import 'package:pks9/pages/register_page.dart';
 
-import '../auth/auth_service.dart';
+import '../services/auth_service.dart';
 import '../main.dart';
 
 class LoginPage extends StatefulWidget {

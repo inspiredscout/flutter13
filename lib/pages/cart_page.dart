@@ -50,8 +50,7 @@ class _CartPageState extends State<CartPage> {
       return sum + (double.tryParse(numeric) ?? 0) * item.quantity;
     });
 
-    return SafeArea(
-      child: Scaffold(
+      return Scaffold(
         appBar: AppBar(
           title: const Text(
             'Корзина',
@@ -238,7 +237,6 @@ class _CartPageState extends State<CartPage> {
           ],
         )
             : const Center(child: Text('Ваша корзина пуста')),
-      ),
     );
   }
 }

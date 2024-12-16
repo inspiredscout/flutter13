@@ -192,8 +192,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
+      return Scaffold(
         appBar: AppBar(
           title: const Center(
             child: Text(
@@ -292,7 +291,6 @@ class _HomePageState extends State<HomePage> {
           ),
           backgroundColor: Colors.deepPurpleAccent,
         ),
-      ),
     );
   }
 }

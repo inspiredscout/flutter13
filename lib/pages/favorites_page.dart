@@ -19,8 +19,7 @@ class FavoritesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
+      return Scaffold(
         appBar: AppBar(
           title: const Text('Избранное', style: TextStyle(color: Colors.white, fontFamily: 'Open-Sans', fontSize: 24, ),),
           backgroundColor: Colors.deepPurpleAccent,
@@ -42,7 +41,6 @@ class FavoritesPage extends StatelessWidget {
           },
         )
             : const Center(child: Text('Нет избранных сетов')),
-      ),
-    );
+      );
   }
 }

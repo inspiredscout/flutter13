@@ -139,14 +139,14 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Закрыть диалог
               },
-              child: const Text('Отмена'),
+              child: const Text('Отмена', style: TextStyle(color: Colors.white),),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Закрыть диалог
                 _saveUserData(); // Сохранить изменения
               },
-              child: const Text('Сохранить'),
+              child: const Text('Сохранить', style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurpleAccent,
               ),
