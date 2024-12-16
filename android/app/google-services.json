@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "84980677445",
+    "project_id": "pks-help",
+    "storage_bucket": "pks-help.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84980677445:android:2274a4b3991c335aa99c2c",
+        "android_client_info": {
+          "package_name": "com.example.pks6"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbKozW4P7TI7tDXpd0hzUZ7Lpr4pYDQdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
