@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pks9/pages/login_page.dart';
-import 'package:pks9/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pks9/pages/chat_page.dart'; // Импортируем страницу чата
+import 'package:pks9/pages/chat_page.dart';
+
+import '../auth/auth_service.dart'; // Импортируем страницу чата
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
