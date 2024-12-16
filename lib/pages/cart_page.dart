@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pks9/model/product.dart';
 import 'package:pks9/api_service.dart';
+import 'package:pks9/model/order_create.dart';
 
 class CartItem {
   final Collector set;
@@ -12,40 +14,65 @@ class CartItem {
   });
 }
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   final List<CartItem> cartItems;
   final Function(Collector) onRemove;
   final Function(Collector, int) onUpdateQuantity;
-  final ApiService apiService = ApiService();
 
-  CartPage({
-    super.key,
+  const CartPage({
+    Key? key,
     required this.cartItems,
     required this.onRemove,
     required this.onUpdateQuantity,
-  });
+  }) : super(key: key);
+
+  @override
+  _CartPageState createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  final ApiService apiService = ApiService();
+  bool _isLoading = false;
+
+  Future<String> _getUserId() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return user.uid;
+    } else {
+      throw Exception('Пользователь не авторизован');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    double total = cartItems.fold(0, (sum, item) {
-      String numeric = item.set.cost.replaceAll(RegExp(r'[^\d]'), '');
+    double total = widget.cartItems.fold(0, (sum, item) {
+      String numeric = item.set.cost.replaceAll(RegExp(r'[^\d.]'), '');
       return sum + (double.tryParse(numeric) ?? 0) * item.quantity;
     });
 
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Корзина', style: TextStyle(color: Colors.white, fontFamily: 'Open-Sans', fontSize: 24,),),
+          title: const Text(
+            'Корзина',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Open-Sans',
+              fontSize: 24,
+            ),
+          ),
           backgroundColor: Colors.deepPurpleAccent,
         ),
-        body: cartItems.isNotEmpty
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : widget.cartItems.isNotEmpty
             ? Column(
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: cartItems.length,
+                itemCount: widget.cartItems.length,
                 itemBuilder: (context, index) {
-                  final item = cartItems[index];
+                  final item = widget.cartItems[index];
                   return Dismissible(
                     key: Key(item.set.id.toString()),
                     direction: DismissDirection.horizontal,
@@ -69,8 +96,15 @@ class CartPage extends StatelessWidget {
                               ),
                               TextButton(
                                 onPressed: () async {
-                                  await apiService.deleteProduct(item.set.id);
-                                  Navigator.of(context).pop(true);
+                                  try {
+                                    await apiService.deleteProduct(item.set.id);
+                                    Navigator.of(context).pop(true);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Ошибка при удалении продукта: $e')),
+                                    );
+                                    Navigator.of(context).pop(false);
+                                  }
                                 },
                                 child: const Text('Удалить'),
                               ),
@@ -78,11 +112,11 @@ class CartPage extends StatelessWidget {
                           ),
                         );
                       }
-                      return Future.value(false);
+                      return false;
                     },
                     onDismissed: (direction) {
                       if (direction == DismissDirection.endToStart) {
-                        onRemove(item.set);
+                        widget.onRemove(item.set);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("${item.set.title} удален из корзины")),
                         );
@@ -114,7 +148,7 @@ class CartPage extends StatelessWidget {
                               icon: const Icon(Icons.remove),
                               onPressed: () {
                                 if (item.quantity > 1) {
-                                  onUpdateQuantity(item.set, item.quantity - 1);
+                                  widget.onUpdateQuantity(item.set, item.quantity - 1);
                                 }
                               },
                             ),
@@ -122,7 +156,7 @@ class CartPage extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () {
-                                onUpdateQuantity(item.set, item.quantity + 1);
+                                widget.onUpdateQuantity(item.set, item.quantity + 1);
                               },
                             ),
                           ],
@@ -153,11 +187,46 @@ class CartPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () async {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Покупка оформлена!')),
-                      );
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      try {
+                        String userId = await _getUserId();
+                        List<int> productIds = widget.cartItems.map((item) => item.set.id).toList();
+                        List<int> quantities = widget.cartItems.map((item) => item.quantity).toList();
+
+                        OrderCreate newOrder = OrderCreate(
+                          customerId: userId,
+                          productIds: productIds,
+                          quantities: quantities,
+                          totalPrice: total,
+                        );
+
+                        await apiService.createOrder(newOrder);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Покупка оформлена!')),
+                        );
+
+                        // Очистка корзины после успешной покупки
+                        setState(() {
+                          widget.cartItems.clear();
+                        });
+                        //Navigator.of(context).pop();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Ошибка при оформлении покупки: $e')),
+                        );
+                      } finally {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
                     },
-                    child: const Text('Купить', style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      'Купить',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
                       backgroundColor: Colors.deepPurpleAccent,

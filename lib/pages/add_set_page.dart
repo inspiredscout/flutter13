@@ -29,7 +29,7 @@ class _AddSetPageState extends State<AddSetPage> {
       isLoading = true;
     });
 
-    final newCar = Collector(
+    final newSet = Collector(
       DateTime.now().millisecondsSinceEpoch,
       title,
       description,
@@ -39,10 +39,9 @@ class _AddSetPageState extends State<AddSetPage> {
     );
 
     try {
-      final createdCar = await _apiService.createProducts(newCar);
+      final createdCar = await _apiService.createProduct(newSet);
       Navigator.pop(context, createdCar);  // Возвращаем новый объект на предыдущий экран
     } catch (e) {
-      // Отображение ошибки при создании автомобиля
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка при добавлении сета: $e')),
       );

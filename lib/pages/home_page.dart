@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addNewSet(Collector set) async {
     try {
-      final newSet = await apiService.createProducts(set);
+      final newSet = await apiService.createProduct(set);
       setState(() {
         sets.add(newSet);
         filteredSets = sets;
